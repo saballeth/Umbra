@@ -658,26 +658,33 @@ std::string Lexer::getLineContent(int lineNumber) const {
  */
 
 void Lexer::reportLexicalError(const std::string& msg, int offset) {
-
     int tokenStartColumn = column - (current - start);
     int errorColumn = tokenStartColumn + offset;
-    
+
     std::string lineContent = getLineContent(line);
 
-    std::string underline(errorColumn > 0 ? errorColumn - 1 : 0, ' '); 
-    underline += "^";
-    
-    std::string fullMessage = "\n" + lineContent + "\n" +
-                              underline + "\n" +
-                              msg;
-    
+    // Formar la línea numerada estilo GCC
+    std::ostringstream numberedLine;
+    numberedLine << std::setw(4) << line << " | " << lineContent;
+
+    // Subrayado con flecha "^" en rojo
+    std::ostringstream underline;
+    underline << "     | " << std::string(errorColumn - 1, ' ') << "\033[1;31m^\033[0m";
+
+    // Mensaje de error en rojo negrita
+    std::ostringstream fullMessage;
+    fullMessage << "\033[1;31merror:\033[0m " << msg << "\n"
+                << numberedLine.str() << "\n"
+                << underline.str();
+
     errorManager->addError(std::make_unique<CompilerError>(
         ErrorType::LEXICAL,
-        fullMessage,
+        fullMessage.str(),
         line,
         errorColumn
     ));
 }
+
 
 
 } // namespace umbra
