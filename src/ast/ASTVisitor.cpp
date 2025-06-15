@@ -481,4 +481,34 @@ namespace umbra {
 
         deep--;
     }
+
+    void PrintASTVisitor::visit(IfStatementNode& node) {
+        indent();
+        std::cout << "If Statement:" << std::endl;
+
+        deep++;
+
+        indent();
+        std::cout << "Condition:" << std::endl;
+        deep++;
+        node.condition->accept(*this);
+        deep--;
+
+        indent();
+        std::cout << "Then Branch:" << std::endl;
+        deep++;
+        node.thenBranch->accept(*this);
+        deep--;
+
+        if (node.elseBranch) {
+            indent();
+            std::cout << "Else Branch:" << std::endl;
+            deep++;
+            node.elseBranch->accept(*this);
+            deep--;
+        }
+
+        deep--;
+    }
+
 }

@@ -342,6 +342,20 @@ namespace umbra {
         std::unique_ptr<Identifier> member;
     };
 
+    class IfStatementNode : public ASTNode {
+    public:
+    std::unique_ptr<ASTNode> condition;
+    std::unique_ptr<ASTNode> thenBranch;
+    std::unique_ptr<ASTNode> elseBranch; // opcional
+
+    IfStatementNode(std::unique_ptr<ASTNode> condition,
+                    std::unique_ptr<ASTNode> thenBranch,
+                    std::unique_ptr<ASTNode> elseBranch = nullptr);
+
+    void accept(ASTVisitor &visitor) override;
+};
+
+
     
 
 };

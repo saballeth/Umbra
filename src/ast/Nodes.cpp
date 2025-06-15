@@ -346,6 +346,22 @@ namespace umbra {
     void ExpressionStatement::accept(ASTVisitor& visitor){
         visitor.visit(*this);
     }
+    
+    /**
+        * @brief Constructs an if statement node
+        * @param condition Conditional expression
+        * @param thenBranch Statement to execute if true
+        * @param elseBranch Statement to execute if false
+    */
+    IfStatementNode::IfStatementNode(std::unique_ptr<ASTNode> condition,
+                                 std::unique_ptr<ASTNode> thenBranch,
+                                 std::unique_ptr<ASTNode> elseBranch)
+    : condition(std::move(condition)), thenBranch(std::move(thenBranch)), elseBranch(std::move(elseBranch)) {}
+
+    void IfStatementNode::accept(ASTVisitor &visitor) {
+        visitor.visit(*this);
+    }
+
 
     /**
      * @brief Constructs an array access expression node

@@ -309,8 +309,27 @@ std::vector<std::unique_ptr<Statement>> Parser::parseStatementList(){
     return statements;
 }
 
+/*
+Esta función actúa como un despachador que revisa si después 
+de repeat viene un if (entonces es repeat if) o directamente 
+una expresión (entonces es repeat ... times).
+*/
+
+std::unique_ptr<Statement> Parser::parseRepeatStatement() {
+    // Ya se consumió 'repeat' en parseStatement
+
+    if (check(TokenType::TOK_IF)) {
+        return parseRepeatIfStatement(); // repeat if (...) { ... }
+    }
+
+    // Si no es repeat-if, lo tratamos como repeat-times
+    return parseRepeatTimesStatement(); // repeat <expr> times { ... }
+}
+
 std::unique_ptr<Statement> Parser::parseStatement(){
     skipNewLines();
+    if (match(TokenType::TOK_IF)) return parseIfStatement();
+    if (match(TokenType::TOK_REPEAT)) return parseRepeatStatement();
 
     if(isTypeToken(peek())){
         return parseVariableDeclaration();
@@ -592,6 +611,24 @@ std::unique_ptr<Identifier> Parser::parseIdentifier(){
     auto id = consume(TokenType::TOK_IDENTIFIER, "Expected identifier");
     return std::make_unique<Identifier>(id.lexeme);
 }
+
+std::unique_ptr<Expression> Parser::parseExpression() {
+    return parseTernary();
+}
+
+std::unique_ptr<Expression> Parser::parseTernary() {
+    auto condition = parseLogicalOr(); 
+
+    if (match(TokenType::TOK_QUESTION)) {
+        auto trueExpr = parseExpression();
+        consume(TokenType::TOK_COLON, "Expected ':' after true expression in ternary");
+        auto falseExpr = parseExpression();
+        return std::make_unique<TernaryExpression>(std::move(condition), std::move(trueExpr), std::move(falseExpr));
+    }
+
+    return condition;
+}
+
 
 /**
  * @brief Parsea una estructura de repetición del tipo 'repeat ... times { ... }'.

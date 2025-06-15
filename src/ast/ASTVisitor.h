@@ -311,6 +311,8 @@ public:
      * @param node The return repeat expression node to process
      */
     void visit(RepeatIfStatement& node) override;
+
+    void visit(IfStatementNode &node) override;
 };
 
 } // namespace umbra
